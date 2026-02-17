@@ -5,7 +5,7 @@ This is a quickly written guide on how to use modern AI agents for work, includi
 ## How to Read This Guide
 
 This `README.md` file is the main document.
-Detailed guides and examples are in the `docs/` and `examples/` folders, and referenced here where appropriate.
+Detailed guides and examples are in the `docs/` folder, and referenced here where appropriate.
 
 The guide is meant to be read in order, examples are meant to be tried out only if you are interested.
 
@@ -134,7 +134,7 @@ Here are some real-world example tasks, extracted from the author's master thesi
 All tasks were run with the Claude Code scaffold, and the Opus 4.6 model, inside a sandboxed environment.
 The author uses "fully autonomous" permissions, i.e. doesn't even get asked for confirmation, since the lethal trifecta is inapplicable inside the sandbox, on a public repository, with the only untrusted content being old math papers from the internet.
 
-See `examples/README.md` for the list of examples.
+See `docs/examples.md` for the list of examples.
 
 ## Sandboxing Agents
 

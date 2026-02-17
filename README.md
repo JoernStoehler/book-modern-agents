@@ -9,6 +9,10 @@ Detailed guides and examples are in the `docs/` and `examples/` folders, and ref
 
 The guide is meant to be read in order, examples are meant to be tried out only if you are interested.
 
+## Getting Started
+
+See `docs/getting-started.md` for step-by-step instructions to try your first agent, starting with the safest and easiest options.
+
 ## What is an Agent?
 
 There's multiple products called "scaffolds" that offer "agents", and they are basically identical in features. The main scaffolds are:

@@ -136,3 +136,7 @@ See `docs/sandboxes.md` for setup instructions for sandboxes and how to use them
 ## Agent Scaffolds
 
 See `docs/scaffolds.md` for setup instructions for the different scaffolds and how to use each of them.
+
+## Models
+
+See `docs/models.md` for an overview of available models, ranked by capability.

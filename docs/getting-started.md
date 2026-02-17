@@ -40,4 +40,26 @@ Runs in your terminal, which you're already comfortable with. Free with a Google
 
 The `--sandbox` flag runs the agent inside a Docker container so it cannot modify files outside the project or access your system. See `docs/sandboxes.md` for details.
 
-For other scaffolds (Claude Code, Codex, etc.), see `docs/scaffolds.md` for installation instructions and `docs/sandboxes.md` for how to run them safely.
+## All Scaffolds At Once: DevContainer
+
+This repository includes a `.devcontainer/` configuration that sets up a sandboxed environment with Java, npm, and all four agent scaffolds (Claude Code, Codex, Gemini CLI, GitHub Copilot CLI) pre-installed.
+
+**With VS Code:**
+1. Install Docker and VS Code with the "Dev Containers" extension.
+2. Open this repository in VS Code.
+3. When prompted, select "Reopen in Container".
+4. Once the container is built, open a terminal and run `claude`, `codex`, `gemini`, or `copilot`.
+
+**With IntelliJ:**
+1. Install Docker and the "Dev Containers" plugin from the JetBrains marketplace.
+2. Open this repository in IntelliJ.
+3. When prompted, select "Reopen in Container".
+
+**With GitHub Codespaces:**
+1. Go to this repository on github.com.
+2. Click "Code" > "Codespaces" > "Create codespace on main".
+3. The codespace builds the devcontainer automatically. All scaffolds are ready to use.
+
+See `docs/sandboxes.md` for more on sandboxing.
+
+For individual scaffold installation without the devcontainer, see `docs/scaffolds.md`.

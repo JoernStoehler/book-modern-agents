@@ -57,7 +57,7 @@ First run: sign in with a ChatGPT Plus/Pro account or an API key.
 
 ### IDE Extensions
 
-VS Code: search for "Codex" by OpenAI in the extensions panel.
+VS Code: search for `openai.chatgpt` in the extensions panel (the extension is named "Codex").
 
 IntelliJ: no official plugin available.
 

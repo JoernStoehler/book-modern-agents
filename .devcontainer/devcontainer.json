@@ -1,0 +1,17 @@
+{
+  "name": "Modern Agents",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "anthropic.claude-code",
+        "GitHub.copilot",
+        "openai.chatgpt",
+        "Google.geminicodeassist"
+      ]
+    }
+  }
+}

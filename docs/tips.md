@@ -12,7 +12,7 @@
 
 - **For known concepts, a brief reminder suffices.** "Use the builder pattern" or "apply L'Hôpital's rule" is enough to activate knowledge from training. For new domain knowledge not in the training data, provide detailed actionable explanations with examples. A reference to a concept the agent doesn't know will result in confident guessing.
 
-- **The newest models know how to use agents.** Previous models wrote bad prompts to other agents. The current generation (`opus 4.6`, `gpt-5.3-codex`) has been trained on their own scaffolds and can use agents as tools.
+- **The newest models know how to use agents.** Previous models wrote bad prompts to other agents. The current generation (`Opus 4.6`, `GPT-5.3-Codex`) has been trained on their own scaffolds and can use agents as tools.
 
 ## Working With Agents
 

@@ -28,4 +28,10 @@ Unstructured collection of practical tidbits. Will be organized once patterns em
 
 - **Use a second agent to review the first agent's work.** Point it at the PR, the git diff, or the final file, and ask it to highlight confident mistakes, possible improvements, and anything deserving your attention.
 
+- **Match model tier to subtask complexity.** Use cheap/fast models for mechanical work (parsing, filtering, extracting text) and capable models for judgment calls (reviewing quality, planning, deciding). This applies to sub-agents and to choosing which model to run a session with.
+
+- **Have agents review earlier agents' logs.** Agents can read their own scaffold's conversation logs and extract useful information: what worked, what failed, what prompts were effective. The log format and location varies by scaffold, but agents can look that up.
+
+- **Use plan mode for complex or vague tasks.** Having the agent write a plan before it starts working has several benefits: the agent has a file to consult, which keeps it more focused; it discovers blockers, ambiguities, or mistakes earlier; and the user can catch problems before work begins. The downside is one extra step, and agents sometimes fail to stop when the plan turns out wrong in practice, continuing onwards wastefully. All scaffolds support some form of this: Claude Code and Codex have `/plan`, Gemini CLI has an experimental plan mode, and on github.com "Ask" mode serves a similar planning role compared to "Task" mode.
+
 - **Context compaction is lossy.** When the context window fills up, scaffolds summarize the history automatically. Claude Code also summarizes user messages, so instructions can drift. For long sessions, keep important instructions in a file the agent can re-read rather than only in chat messages.

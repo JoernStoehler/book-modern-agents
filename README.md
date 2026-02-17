@@ -45,6 +45,13 @@ This simple model of an agent loop is modified in a few ways to account for mode
 
 **Context Compaction**: Modern agents are capable of working on tasks that require a lot of reading, writing and many tool calls, such that the context window can grow beyond the large language model's maximum input size. To deal with this, modern scaffolds **compact** the context window when it grows too large automatically, by summarizing (via LLM call) the history so far, or by pruning especially long tool call results (e.g. file reads). This summarization step is often lossy, e.g. Claude Code also summarizes user messages and thus instructions can drift. For basic users it's advisable to just stay below the context window limit. For advanced users, it's advisable to instruct the model to reaffirm user instructions or keep them in a separate file that can be re-read.
 
+**Background Processes**: Some scaffolds (claude code, codex) allow the agent to run long-running processes in the background, and check their output later. This is useful for tasks that require a lot of waiting time, e.g. running automated or live tests.
+
+**Sub-Agents**: Some scaffolds (claude code) allow the agent to spawn more agents (called sub-agents). The sub-agents have their own context window, are prompted by the parent agent, work autonomously in the foreground or background, without direct user interaction, and eventually deliver a single message back to the parent agent once done. This is useful in mainly three situations: 
+1. the sub-task is read-heavy and would fill up the context window with irrelevant information while a sub-agent response message can be concise. E.g.: searching for where some feature is implemented in the codebase. 
+2. the sub-task requires focus and would clash with what the parent agent is doing. E.g. reviewing a file without being spoiled by the parent agent's context window that contains older versions and aspirational plans about the file.
+3. the sub-task is one of many parallelizable sub-tasks. E.g. refactoring the documentation in multiple independent files after a central change happened, or writing five different files that implement different versions of an algorithm, to see which one works best.
+
 ## What Can Agents Do?
 
 The basic wisdom is: try it, agents are cheap enough (compared to your time).

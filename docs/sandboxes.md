@@ -2,7 +2,7 @@
 
 ## Why Sandbox?
 
-Agents execute tool calls (bash commands, file edits) that can have unintended consequences. A sandbox limits the damage. See the "Can Agents Be Harmful?" section in the main README for details.
+Agents execute tool calls (bash commands, file edits) that can have unintended consequences. A sandbox limits the damage. See the "Can Agents Be Harmful?" section in `README.md` for details.
 
 ## Built-in Sandboxes
 

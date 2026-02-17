@@ -90,7 +90,7 @@ First run: select "Login with Google", authenticate in the browser that opens.
 
 ### IDE Extensions
 
-VS Code: search for `Google.gemini-cli-vscode-ide-companion` in the extensions panel.
+VS Code: search for `Google.geminicodeassist` in the extensions panel (the extension is named "Gemini Code Assist").
 
 IntelliJ: search for "Gemini Code Assist" in the plugin marketplace.
 

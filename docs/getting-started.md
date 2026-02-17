@@ -19,7 +19,7 @@ Requires a GitHub Copilot Pro subscription or higher.
 
 Guide: https://geminicli.com/docs/get-started/
 
-Runs in your terminal, which you're already comfortable with. Free with a Google account (increased quota with Gemini Pro).
+Runs in your terminal, which you're already comfortable with. Free with a Google account (increased quota with Google AI Pro).
 
 1. Install:
    ```bash

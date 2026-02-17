@@ -14,7 +14,7 @@ Unstructured collection of practical tidbits. Will be organized once patterns em
 
 - **Aim high and bisect.** Try an ambitious task. If it fails, split it until both halves are doable. Or do the part the agent got stuck on yourself, then retry.
 
-- **The newest models know how to use agents.** Previous models wrote bad prompts to other agents. The current generation (opus 4.6, gpt-5.3-codex) has been trained on their own scaffolds and can use agents as tools.
+- **The newest models know how to use agents.** Previous models wrote bad prompts to other agents. The current generation (`opus 4.6`, `gpt-5.3-codex`) has been trained on their own scaffolds and can use agents as tools.
 
 - **Agents are poorly calibrated.** They can be overconfident or underconfident. Empirical feedback (tests, compilation, running the code) helps more than asking the agent to reason harder.
 

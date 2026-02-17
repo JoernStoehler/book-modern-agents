@@ -22,10 +22,10 @@ Each scaffold, TUI or GUI, basically works the same way.
 
 **Agent Loop**: In first approximation, the scaffold executes a simple agent loop:
 1. A large language model (LLM) is provided with some text input, and produces a structured text output which is parsed into a list of tool calls.
-2. The scaffold executes the tool calls and records the tool call result, e.g. a `Bash(ls -la docs/)` tool call would result in running the command `ls -la docs/` in the scaffold's working directory, and records the stdout and stderr outputs of the command. A `EditFile(docs/guide.md, `-Hello, world!\n+Hello, agent!`)` tool call would result in applying the given diff to the file `docs/guide.md`, and recording either a error message if e.g. the file doesn't exist or the diff is invalid, or a success message if the edit was successful. A `BackgroundBash(javac MyClass.java)` tool call would result in running the command `javac MyClass.java` in the background, recording as output simply two file handles where the captured stdout and stderr can be read from later with additional tool calls like `ReadFile(stdout_handle)`.
-3. Once all tool calls have been executed, the scaffold appends the tool calls and their results to the original input, and feeds the whole **context window** back into the LLM.
+2. The scaffold executes the tool calls and records the tool call result, e.g. a `Bash(ls -la docs/)` tool call would result in running the command `ls -la docs/` in the scaffold's working directory, and records the stdout and stderr outputs of the command. A `EditFile(docs/guide.md, replace "Hello, world!" with "Hello, agent!")` tool call would result in applying the given edit to the file `docs/guide.md`, and recording either a error message if e.g. the file doesn't exist or the diff is invalid, or a success message if the edit was successful. A `BackgroundBash(javac MyClass.java)` tool call would result in running the command `javac MyClass.java` in the background, recording as output simply two file handles where the captured stdout and stderr can be read from later with additional tool calls like `ReadFile(stdout_handle)`.
+3. Once all tool calls have been executed, the scaffold appends the tool calls and their results to the original input, and feeds the whole **context window** (the complete text sent to the LLM as input) back into the LLM.
 
-The feedback in the LLM's context window allows the agent to **observe** what is happening in its environment. The LLM's silent or aloud reasoning allows the agent to **orient** itself and **decide** what actions to output as tool calls. The scaffold then **acts** by executing the tool calls. This is the classical OODA loop from human decision making.
+The feedback in the LLM's context window allows the agent to **observe** what is happening in its environment. The LLM's silent or aloud reasoning allows the agent to **orient** itself and **decide** what actions to output as tool calls. The scaffold then **acts** by executing the tool calls. This is the classical observe-orient-decide-act loop from human decision making.
 
 This simple model of an agent loop is modified in a few ways to account for modern practices.
 
@@ -41,36 +41,9 @@ This simple model of an agent loop is modified in a few ways to account for mode
 
 **Context Compaction**: Modern agents are capable of working on tasks that require a lot of reading, writing and many tool calls, such that the context window can grow beyond the large language model's maximum input size. To deal with this, modern scaffolds **compact** the context window when it grows too large automatically, by summarizing (via LLM call) the history so far, or by pruning especially long tool call results (e.g. file reads). This summarization step is often lossy, e.g. Claude Code also summarizes user messages and thus instructions can drift. For basic users it's advisable to just stay below the context window limit. For advanced users, it's advisable to instruct the model to reaffirm user instructions or keep them in a separate file that can be re-read.
 
-## Can Agents Be Harmful?
-
-The Large Language Models that output the tool calls are not perfect and make mistakes. They have sometimes learned dangerous habits during training, e.g. they tend to remove files (`rm -rf`) rather than trashing them. The most recent scaffolds (claude code, codex) focus on autonomy, and more frequently err towards taking irreversible actions if that means making progress towards the task without bothering the user.
-
-To counteract accidental modifications inside the scope one intends the agent to work with, snapshotting the valuable content of the environment is advisable. This includes version control (git) in the folder the agent works in for convenient restoration of only the relevant source files (but not e.g. compiled binaries or data). Some scaffolds (claude code) even automatically snapshot the git repository after every user message, so that one can return to the last message if the agent misunderstood something.
-
-To counteract accidental modifications outside the scope one wants the agent to work with, sandboxing the scaffold process is advisable. Modern scaffolds bring their own sandboxes (claude code, codex) with them, that intercept on an OS / file system layer the side effects of tool calls. All modern scaffolds have the previously described permission system that evaluates tool calls before execution and asks for user permission. However, users can be mistaken about tool calls, and the built-in sandboxes are limited in what they can do.
-
-A more robust way to sandbox the agent is to run the scaffold on a remote machine, inside a virtual machine, inside a container, etc. This way, almost all plausible tool calls that a careless agent can effect can be contained.
-
-**Lethal Trifecta**: The most dangerous scenario however is when the scaffold sends malicious input to the Large Language Model, which then outputs not mistaken tool calls that have harmful consequences, but outputs commands that are designed to be harmful. The LLM can even take into account the additional information it has to tailor malicious commands to the user's environment. The **Lethal Trifecta** (https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/) are three different circumstances that have to come together for the resulting harm to be problematic.
-
-1. Access to private data: The agent needs to have access to something an adversary doesn't already have access to. Passwords, API keys, private files, network access, personal data without backups, etc.
-
-2. Exposure to untrusted content: The agent needs to receive malicious input from an adversary. Channels include search engine results, internet articles, downloaded files. Note that browsers / pdf readers don't make malicious input obviously visible to the human user, e.g. html comments or white-on-white text or text encoded as hexadecimal garbage that LLMs know how to read.
-
-3. Ability to externally communicate / to act on the system: The agent needs to be able to send stolen secrets back to the adversary, which requires outgoing network traffic. Or the agent needs to be able to take actions that affect the system the adversary wants to harm, e.g. tool calls that run bash commands, or file edits that are not reversible.
-
-The common ways to mitigate the legs of the lethal trifecta are:
-1. Use a sandbox that only contains non-sensitive files, or easily recoverable files, or easily invalidated api keys. Usually the scaffold environment also needs to have some api key / authentication token for the user's LLM API subscription, but that's way less than a full password or payment info.
-2. Don't let the agent access untrusted content. Limit it to files you know are safe, to web resources you trust are not maliciously crafted, or download resources and inspect them for anything unreadable or suspicious.
-3. When access to untrusted content and to sensitive data is both necessary, use a sandbox that only has incoming network traffic, e.g. by using some search engine with a cached version of the web, as many scaffold providers offer. This way, the agent has access to most untrusted content, but can't cause any information to be received by the adversary. Similarly, all write access to the system can be disabled in the sandbox, so that the agent can read files and list folders, but not run any bash commands, or at least not run any bash commands without user confirmation.
-
-Ready-to-use sandboxes are found in `docs/sandboxes.md`. 
-
-The basic advice remains however that letting an agent run on your system, can mean giving an adversary access to your system via the agent.
-
 ## What Can Agents Do?
 
-The basic wisdom is: try it, agents are cheap enough.
+The basic wisdom is: try it, agents are cheap enough (compared to your time).
 
 One way to try what agents can do is to aim high, and bisect until both tasks become doable.
 Another is to aim high, and on failure do the part that the agent wasn't capable of and got blocked on, and then retry anew once the blocker is cleared.
@@ -105,9 +78,44 @@ High-level agent capabilities include inferring from context implicit instructio
 
 One way to use agents based on these high level capabilities is to discuss the project context and goal with them, and then narrow down in conversation what would be a good task to assign to the agent -- or multiple good tasks to assign in sequence or in parallel to multiple agents.
 
-The current frontier models no longer suck at this kind of complex mental modeling, and they are not utterly uncalibrated on what agents can do.
+The current frontier models are no longer bad at this kind of complex mental modeling, and they are not utterly uncalibrated on what agents can do.
 For example, it's totally possible to assign an agent to a data science project, and let it plan out a sequence of experiments to run, including cleanup, redoing of experiments, and scheduled "breaks" for planning the next tasks to work through.
 These kind of fully autonomous long-running open-scoped tasks is one aspect of what the companies are training their large language models and are designing their scaffolds for these days, and while the current generation isn't quite reliable enough to do it without human oversight, the next might.
+
+### Work Unrelated To Software Development
+
+Agents work with any text-based files using the same tools they use for code: `Bash()`, `Read()`, `Edit()`. A presentation outline, a report draft, a data analysis script, or an email are all just text files to the agent.
+
+For binary formats (PDF, Excel, Word, PowerPoint), agents can use standard command-line conversion tools that they already know from training. For example, installing a PDF-to-text converter or an Excel-to-CSV tool lets the agent read and transform those files. The same applies in reverse: agents can produce markdown or CSV that gets converted to the target format.
+
+The main limitation is that agents work best when they can read and write the files as plain text. The more of your workflow you can express as text files, the more useful agents become.
+
+## Can Agents Be Harmful?
+
+The Large Language Models that output the tool calls are not perfect and make mistakes. They have sometimes learned dangerous habits during training, e.g. they tend to remove files (`rm -rf`) rather than trashing them. The most recent scaffolds (claude code, codex) focus on autonomy, and more frequently err towards taking irreversible actions if that means making progress towards the task without bothering the user.
+
+To counteract accidental modifications inside the scope one intends the agent to work with, snapshotting the valuable content of the environment is advisable. This includes version control (git) in the folder the agent works in for convenient restoration of only the relevant source files (but not e.g. compiled binaries or data). Some scaffolds (claude code) even automatically snapshot the git repository after every user message, so that one can return to the last message if the agent misunderstood something.
+
+To counteract accidental modifications outside the scope one wants the agent to work with, sandboxing the scaffold process is advisable. Modern scaffolds bring their own sandboxes (claude code, codex) with them, that intercept on an OS / file system layer the side effects of tool calls. All modern scaffolds have the previously described permission system that evaluates tool calls before execution and asks for user permission. However, users can be mistaken about tool calls, and the built-in sandboxes are limited in what they can do.
+
+A more robust way to sandbox the agent is to run the scaffold on a remote machine, inside a virtual machine, inside a container, etc. This way, almost all plausible tool calls that a careless agent can cause can be contained.
+
+**Lethal Trifecta**: The most dangerous scenario however is when the scaffold sends malicious input to the Large Language Model, which then outputs not mistaken tool calls that have harmful consequences, but outputs commands that are designed to be harmful. The LLM can even take into account the additional information it has to tailor malicious commands to the user's environment. The **Lethal Trifecta** (https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/) are three different circumstances that have to come together for the resulting harm to be problematic.
+
+1. Access to private data: The agent needs to have access to something an adversary doesn't already have access to. Passwords, API keys, private files, network access, personal data without backups, etc.
+
+2. Exposure to untrusted content: The agent needs to receive malicious input from an adversary. Channels include search engine results, internet articles, downloaded files. Note that browsers / pdf readers don't make malicious input obviously visible to the human user, e.g. html comments or white-on-white text or text encoded as hexadecimal garbage that LLMs know how to read.
+
+3. Ability to externally communicate / to act on the system: The agent needs to be able to send stolen secrets back to the adversary, which requires outgoing network traffic. Or the agent needs to be able to take actions that affect the system the adversary wants to harm, e.g. tool calls that run bash commands, or file edits that are not reversible.
+
+The common ways to mitigate the legs of the lethal trifecta are:
+1. Use a sandbox that only contains non-sensitive files, or easily recoverable files, or easily invalidated API keys. Usually the scaffold environment also needs to have some API key / authentication token for the user's LLM API subscription, but that's way less than a full password or payment info.
+2. Don't let the agent access untrusted content. Limit it to files you know are safe, to web resources you trust are not maliciously crafted, or download resources and inspect them for anything unreadable or suspicious.
+3. When access to untrusted content and to sensitive data is both necessary, use a sandbox that only has incoming network traffic, e.g. by using some search engine with a cached version of the web, as many scaffold providers offer. This way, the agent has access to most untrusted content, but can't cause any information to be received by the adversary. Similarly, all write access to the system can be disabled in the sandbox, so that the agent can read files and list folders, but not run any bash commands, or at least not run any bash commands without user confirmation.
+
+Ready-to-use sandboxes are found in `docs/sandboxes.md`.
+
+The basic advice remains however that letting an agent run on your system, can mean giving an adversary access to your system via the agent.
 
 ## Example Tasks For Agents
 
